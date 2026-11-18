@@ -7,6 +7,16 @@
 
   *A futuristic Parisian fashion house where couture craftsmanship, electrical engineering, wearable electronics, and avant-garde creativity become one interactive experience.*
 
+
+![](https://github.com/lucylow/avant-garde-Couture-Circuitry/blob/main/99.png?raw=true)
+
+![](https://github.com/lucylow/avant-garde-Couture-Circuitry/blob/main/65.png?raw=true)
+
+![](https://github.com/lucylow/avant-garde-Couture-Circuitry/blob/main/54.png?raw=true)
+
+![](https://github.com/lucylow/avant-garde-Couture-Circuitry/blob/main/13.png?raw=true)
+
+
 </p>
 
 <p align="center">
