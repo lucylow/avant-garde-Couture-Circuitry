@@ -1,37 +1,36 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Cormorant_Garamond } from 'next/font/google'
+import { Cormorant_Garamond, DM_Sans, JetBrains_Mono } from 'next/font/google'
+import { MobileNav, SiteHeader } from '@/components/site-nav'
+import { SiteFooter } from '@/components/site-footer'
+import { MaisonProvider } from '@/lib/maison-store'
 import './globals.css'
 
-const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: '600', variable: '--font-cormorant' })
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+})
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans' })
+const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains' })
+
+const title = 'AVANT-GARDE COUTURE CIRCUITRY | Maison de Couture Électronique'
+const description =
+  'Discover AVANT-GARDE COUTURE CIRCUITRY, an experimental Parisian fashion house where haute couture, electrical engineering, wearable electronics, and creative technology come together.'
 
 export const metadata: Metadata = {
-  title: 'Couture Circuitry — Atelier',
-  description: 'Design a gown, place LEDs, and engineer its circuit.',
-  openGraph: { title: 'Couture Circuitry — Atelier', description: 'Fashion meets electrical engineering.' },
+  title,
+  description,
+  applicationName: 'AVANT-GARDE COUTURE CIRCUITRY',
+  openGraph: { title, description, siteName: 'MAISON AVANT-GARDE', images: ['/images/salon-hero.png'] },
   generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+  icons: { icon: [{ url: '/icon.svg', type: 'image/svg+xml' }], apple: '/apple-icon.png' },
 }
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#f8eef3',
+  themeColor: '#651E36',
 }
 
 export default function RootLayout({
@@ -40,9 +39,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={cormorant.variable}>
-      <body className="antialiased">
-        {children}
+    <html lang="fr" className={`${cormorant.variable} ${dmSans.variable} ${jetbrains.variable} bg-background`}>
+      <body className="font-sans antialiased">
+        <MaisonProvider>
+          <SiteHeader />
+          <main>{children}</main>
+          <SiteFooter />
+          <MobileNav />
+        </MaisonProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
