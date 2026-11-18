@@ -162,25 +162,64 @@
   }
 }
 
-/* Couture Circuitry theme */
-:root {
-  --background: oklch(0.97 0.02 340);
-  --foreground: oklch(0.28 0.06 330);
-  --card: oklch(0.99 0.01 340);
-  --card-foreground: oklch(0.28 0.06 330);
-  --primary: oklch(0.6 0.15 350);
-  --primary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.93 0.03 300);
-  --muted-foreground: oklch(0.48 0.05 320);
-  --accent: oklch(0.85 0.1 200);
-  --accent-foreground: oklch(0.28 0.06 330);
-  --border: oklch(0.88 0.04 330);
-  --glow: oklch(0.9 0.15 90);
-  --fabric: oklch(0.82 0.08 300);
+/* Maison Avant-Garde theme */
+:root,
+:root:not(.light) {
+  color-scheme: light;
+  --background: #faf7f1;
+  --foreground: #19171a;
+  --card: #fffdf9;
+  --card-foreground: #19171a;
+  --popover: #fffdf9;
+  --popover-foreground: #19171a;
+  --primary: #651e36;
+  --primary-foreground: #faf7f1;
+  --secondary: #e6d2b4;
+  --secondary-foreground: #19171a;
+  --muted: #f1ece3;
+  --muted-foreground: #5f5853;
+  --accent: #e6d2b4;
+  --accent-foreground: #19171a;
+  --destructive: #a3242a;
+  --border: #ddd4c7;
+  --input: #ddd4c7;
+  --ring: #651e36;
+  --radius: 0.25rem;
+  --gold: #b99a67;
+  --champagne: #e6d2b4;
+  --rose: #d6a4ad;
+  --parisian: #c8c3be;
+  --cyan: #55d9e8;
+  --lavender: #c7b8e7;
+  --obsidian: #19171a;
+  --glow: #fbe7b0;
 }
 
 @theme inline {
   --color-glow: var(--glow);
-  --color-fabric: var(--fabric);
+  --color-gold: var(--gold);
+  --color-champagne: var(--champagne);
+  --color-rose: var(--rose);
+  --color-parisian: var(--parisian);
+  --color-cyan: var(--cyan);
+  --color-lavender: var(--lavender);
+  --color-obsidian: var(--obsidian);
   --font-display: var(--font-cormorant), 'Cormorant Garamond', serif;
+  --font-sans: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-sans text-[0.68rem] font-medium uppercase tracking-[0.32em];
+  }
+  .gold-rule {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-gold to-transparent;
+  }
+  .stitch {
+    background-image: linear-gradient(to right, var(--gold) 50%, transparent 50%);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    height: 1px;
+  }
 }

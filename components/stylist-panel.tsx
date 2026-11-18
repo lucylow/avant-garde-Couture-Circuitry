@@ -24,28 +24,29 @@ export function StylistPanel({ onSuggest }: { onSuggest: (s: Suggestion) => void
     })
 
   return (
-    <div className="space-y-2 rounded-xl border p-3">
-      <label htmlFor="concept" className="block font-semibold">
-        AI Stylist
+    <div className="space-y-3">
+      <label htmlFor="concept" className="flex flex-col">
+        <span className="eyebrow text-primary">Styliste IA</span>
+        <span className="text-xs text-muted-foreground">AI stylist — describe a concept</span>
       </label>
       <textarea
         id="concept"
         value={concept}
         onChange={(e) => setConcept(e.target.value)}
         placeholder="e.g. a constellation gown with stars along the hem"
-        className="w-full rounded-md border bg-background p-2 text-xs"
+        className="w-full resize-none rounded-sm border border-border bg-background p-2.5 text-sm"
         rows={2}
       />
       <button
         type="button"
         disabled={busy || !concept.trim()}
         onClick={ask}
-        className="w-full rounded-lg bg-primary py-1.5 text-primary-foreground disabled:opacity-50"
+        className="eyebrow w-full rounded-sm border border-primary py-2.5 text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
       >
-        {busy ? 'Designing…' : 'Suggest layout'}
+        {busy ? 'Création en cours…' : 'Proposer un motif'}
       </button>
       {message && (
-        <p className="text-xs text-muted-foreground" aria-live="polite">
+        <p className="font-display text-base italic text-muted-foreground" aria-live="polite">
           {message}
         </p>
       )}

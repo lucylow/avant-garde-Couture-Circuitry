@@ -13,7 +13,7 @@ const schema = z.object({
   note: z.string(),
 })
 
-const SYSTEM = `You are a couture wearable-tech engineer. Gown SVG is 200x300; fabric area roughly x 30-170, y 40-280 (narrow bodice near x 75-125 above y 90). Battery 3.7V, LEDs 2.0V. Resistor 60-300 ohms keeps 5-30mA per LED. Fabric index: 0 lilac, 1 rose, 2 sky, 3 champagne. Return 3-14 LEDs and a one short sentence note.`
+const SYSTEM = `You are a couture wearable-tech engineer. Gown SVG is 200x300; fabric area roughly x 30-170, y 40-280 (narrow bodice near x 75-125 above y 90). Battery 3.7V, LEDs 2.0V. Resistor 60-300 ohms keeps 5-30mA per LED. Fabric index: 0 lavender, 1 dusty rose, 2 sky, 3 champagne, 4 burgundy velvet, 5 midnight. You work for MAISON AVANT-GARDE, a Parisian couture house; the note may open with a short French phrase. Return 3-14 LEDs and a one short sentence note.`
 
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n))
 
@@ -33,7 +33,7 @@ export async function suggestLayout(rawConcept: string): Promise<Suggestion> {
     return {
       leds: output.leds.slice(0, 14).map((l) => ({ x: clamp(l.x, 20, 180), y: clamp(l.y, 35, 285) })),
       ohms: clamp(Math.round(output.ohms / 10) * 10 || 100, 20, 500),
-      fabric: clamp(Math.round(output.fabric) || 0, 0, 3),
+      fabric: clamp(Math.round(output.fabric) || 0, 0, 5),
       note: output.note,
     }
   } catch (e) {

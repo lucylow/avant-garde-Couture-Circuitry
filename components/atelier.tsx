@@ -1,178 +1,136 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { motion } from 'motion/react'
 import { GownCanvas } from '@/components/gown-canvas'
 import { StylistPanel } from '@/components/stylist-panel'
-import { BATTERY_MAH, BATTERY_V, FABRICS, JOBS, LED_MA, LED_V, type Led } from '@/lib/circuit'
+import { LabControls } from '@/components/lab-controls'
+import { GarmentLabel, PageHeading } from '@/components/editorial'
+import { FABRICS } from '@/lib/circuit'
+import { useMaison } from '@/lib/maison-store'
+import { cn } from '@/lib/utils'
 
-const SAVE_KEY = 'cc-save'
+function Step({ n, fr, en }: { n: string; fr: string; en: string }) {
+  return (
+    <div className="flex items-baseline gap-3">
+      <span className="font-mono text-xs text-gold">{n}</span>
+      <h2 className="flex flex-col">
+        <span className="eyebrow text-foreground">{fr}</span>
+        <span className="text-xs text-muted-foreground">{en}</span>
+      </h2>
+    </div>
+  )
+}
 
 export function Atelier() {
-  const [leds, setLeds] = useState<Led[]>([])
-  const [ohms, setOhms] = useState(100)
-  const [on, setOn] = useState(false)
-  const [job, setJob] = useState(0)
-  const [credits, setCredits] = useState(0)
-  const [fabric, setFabric] = useState(FABRICS[0].color)
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    try {
-      const d = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}')
-      if (d.job != null) {
-        setJob(d.job)
-        setCredits(d.credits ?? 0)
-      }
-    } catch {}
-    setLoaded(true)
-  }, [])
-
-  useEffect(() => {
-    if (loaded) localStorage.setItem(SAVE_KEY, JSON.stringify({ job, credits }))
-  }, [job, credits, loaded])
-
-  const J = JOBS[job % JOBS.length]
-  const ma = ((BATTERY_V - LED_V) / ohms) * 1000
-  const total = ma * leds.length
-  const hours = total ? BATTERY_MAH / total : 0
-  const ok = leds.length > 0 && ma >= 5 && ma <= 30
-  const lit = on && ok
-  const briefOk = ok && leds.length >= J.min && leds.length <= J.max && hours >= (J.hours ?? 0)
-  const score = ok ? Math.min(100, 50 + leds.length * 6 + Math.round(hours)) : 0
-  const status = !leds.length
-    ? 'Place LEDs on the gown'
-    : ma > 30
-      ? 'Too much current — LEDs will burn out. Raise the resistor.'
-      : ma < 5
-        ? 'Too dim — lower the resistor.'
-        : 'Circuit balanced ✓'
-
-  const deliver = () => {
-    setCredits(credits + score * 2)
-    setJob(job + 1)
-    setLeds([])
-    setOn(false)
-  }
+  const m = useMaison()
+  const { currentJob: J, analysis: a } = m
 
   return (
-    <main className="mx-auto grid min-h-screen max-w-5xl gap-6 p-6 md:grid-cols-[1fr_320px]">
-      <section className="rounded-2xl border bg-card p-4">
-        <h1 className="font-display text-4xl">Couture Circuitry</h1>
-        <p className="mb-2 text-sm text-muted-foreground">
-          Click the gown to place LEDs (parallel circuit, 3.7V battery).
-        </p>
-        <GownCanvas leds={leds} fabric={fabric} lit={lit} onPlace={(l) => setLeds([...leds, l])} />
-      </section>
+    <div className="mx-auto max-w-7xl px-4 md:px-8">
+      <PageHeading eyebrow="Maison Avant-Garde · Studio de création" title="L'ATELIER" subtitle="L'art de créer." />
 
-      <aside className="space-y-3 rounded-2xl border bg-card p-4 text-sm">
-        <div className="rounded-xl bg-muted p-3">
-          <p className="text-xs text-muted-foreground">
-            Commission #{job + 1} · {credits} Atelier Credits
-          </p>
-          <p className="font-semibold">
-            {J.client}: {J.brief}
-          </p>
-          <p className="text-xs">
-            Needs {J.min}–{J.max} LEDs{J.hours ? `, ${J.hours}h battery` : ''}
-          </p>
-        </div>
-
-        <div className="flex gap-2" role="group" aria-label="Fabric colour">
-          {FABRICS.map((f) => (
-            <button
-              key={f.color}
-              type="button"
-              aria-label={f.name}
-              aria-pressed={fabric === f.color}
-              onClick={() => setFabric(f.color)}
-              className={`h-7 w-7 rounded-full border-2 ${fabric === f.color ? 'border-primary' : 'border-border'}`}
-              style={{ background: f.color }}
-            />
-          ))}
-        </div>
-
-        <StylistPanel
-          onSuggest={(r) => {
-            setLeds(r.leds)
-            setOhms(r.ohms)
-            setFabric(FABRICS[r.fabric].color)
-            setOn(false)
-          }}
-        />
-
-        <h2 className="font-display text-2xl">Engineering Lab</h2>
-        <ul className="grid grid-cols-2 gap-1 text-xs">
-          {[
-            ['LiPo cell', '3.7V · 500mAh'],
-            ['Sewable LED', '2.0V · 20mA'],
-            ['Steel thread', '~14Ω/ft'],
-            ['Resistor', `${ohms}Ω`],
-          ].map(([n, v]) => (
-            <li key={n} className="rounded-md border p-1.5">
-              <b>{n}</b>
-              <br />
-              <span className="text-muted-foreground">{v}</span>
-            </li>
-          ))}
-        </ul>
-
-        <label className="block">
-          Resistor: {ohms}Ω
-          <input
-            type="range"
-            min={20}
-            max={500}
-            step={10}
-            value={ohms}
-            onChange={(e) => setOhms(+e.target.value)}
-            className="w-full accent-primary"
-          />
-        </label>
-
-        <p>
-          LEDs: {leds.length} · Per LED: {ma.toFixed(1)} mA (limit {LED_MA})
-        </p>
-        <p>
-          Total: {total.toFixed(0)} mA · Battery: {hours.toFixed(1)} h
-        </p>
-        <p className={ok ? 'font-semibold text-primary' : 'text-destructive'} aria-live="polite">
-          {status}
-        </p>
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setOn(!on)}
-            className="flex-1 rounded-lg bg-primary py-2 text-primary-foreground"
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <section aria-labelledby="apercu" className="border border-border bg-card p-4 md:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p id="apercu" className="eyebrow text-primary">
+                Aperçu du vêtement
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Garment preview — click the gown to place LEDs (parallel circuit, 3.7V battery).
+              </p>
+            </div>
+            <GarmentLabel piece={m.job + 1} className="hidden sm:inline-flex" />
+          </div>
+          <motion.div
+            key={m.fabric}
+            initial={{ opacity: 0.6 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="py-6"
           >
-            {on ? 'Power off' : 'Simulate'}
-          </button>
-          <button type="button" onClick={() => setLeds(leds.slice(0, -1))} className="rounded-lg border px-3">
-            Undo
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setLeds([])
-              setOn(false)
-            }}
-            className="rounded-lg border px-3"
-          >
-            Reset
-          </button>
-        </div>
+            <GownCanvas leds={m.leds} fabric={FABRICS[m.fabric].color} lit={m.lit} onPlace={m.placeLed} />
+          </motion.div>
+        </section>
 
-        {lit && <p className="font-display text-xl">Runway score: {score}/100</p>}
-        {lit &&
-          (briefOk ? (
-            <button type="button" onClick={deliver} className="w-full rounded-lg bg-accent py-2 font-semibold">
-              Deliver to {J.client} (+{score * 2} credits)
-            </button>
-          ) : (
-            <p className="text-destructive">{"Doesn't match the brief yet."}</p>
-          ))}
-        <p className="text-xs text-muted-foreground">Simulation only — not a certified wearable design.</p>
-      </aside>
-    </main>
+        <aside className="flex flex-col gap-6">
+          <div className="border border-border bg-card p-5">
+            <p className="eyebrow text-muted-foreground">
+              Commande Nº {m.job + 1} · {m.credits} Atelier Credits
+            </p>
+            <p className="mt-2 font-display text-2xl">{J.client}</p>
+            <p className="font-display text-lg italic text-muted-foreground">{J.briefFr}</p>
+            <p className="text-sm">{J.brief}</p>
+            <p className="mt-2 font-mono text-xs text-primary">
+              {J.min}–{J.max} LEDs{J.hours ? ` · ${J.hours}h+ battery` : ''}
+            </p>
+          </div>
+
+          <div className="space-y-4 border border-border bg-card p-5">
+            <Step n="01" fr="Choisir un tissu" en="Choose a fabric" />
+            <div className="grid grid-cols-3 gap-2" role="group" aria-label="Tissu — fabric">
+              {FABRICS.map((f, i) => (
+                <button
+                  key={f.name}
+                  type="button"
+                  aria-pressed={m.fabric === i}
+                  onClick={() => m.setFabric(i)}
+                  className={cn(
+                    'flex flex-col items-start gap-1.5 border p-1.5 text-left transition-colors',
+                    m.fabric === i ? 'border-primary' : 'border-border hover:border-gold',
+                  )}
+                >
+                  <span className="h-8 w-full" style={{ background: f.color }} aria-hidden />
+                  <span className="text-[0.65rem] leading-tight">
+                    <span className="block font-medium">{f.name}</span>
+                    <span className="text-muted-foreground">{f.en}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="stitch" aria-hidden />
+            <Step n="02" fr="Ajouter des détails" en="Broderie lumineuse — LED embroidery" />
+            <StylistPanel onSuggest={(r) => m.applySuggestion(r)} />
+          </div>
+
+          <div className="space-y-4 bg-obsidian p-5 text-background">
+            <div className="flex items-baseline justify-between">
+              <Step n="03" fr="Personnaliser le circuit" en="Tune the circuit" />
+              <Link href="/laboratoire" className="text-xs text-cyan underline-offset-4 hover:underline">
+                Laboratoire →
+              </Link>
+            </div>
+            <LabControls />
+          </div>
+
+          {m.lit && (
+            <div className="space-y-3 border border-gold bg-card p-5">
+              <p className="eyebrow text-primary">Évaluation · Runway score</p>
+              <p className="font-display text-4xl">{a.score}/100</p>
+              {a.briefOk ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={m.deliver}
+                    className="eyebrow w-full rounded-sm bg-primary py-3 text-primary-foreground hover:opacity-90"
+                  >
+                    Enregistrer la création · Deliver (+{a.score * 2})
+                  </button>
+                  <Link
+                    href="/defile"
+                    className="eyebrow block text-center text-primary underline-offset-4 hover:underline"
+                  >
+                    Présenter au Défilé →
+                  </Link>
+                </>
+              ) : (
+                <p className="text-sm text-destructive">{"Doesn't match the brief yet."}</p>
+              )}
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
   )
 }

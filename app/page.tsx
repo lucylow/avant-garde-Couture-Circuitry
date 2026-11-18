@@ -1,5 +1,5 @@
-import { Atelier } from '@/components/atelier'
+import { Salon } from '@/components/salon'
 
 export default function Page() {
-  return <Atelier />
+  return <Salon />
 }
